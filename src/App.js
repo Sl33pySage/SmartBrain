@@ -9,23 +9,25 @@ import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import "./App.css";
 
+const initialState = {
+	input: "",
+	imageUrl: "",
+	box: {},
+	route: "signin",
+	isSignedIn: false,
+	user: {
+		id: "",
+		name: "",
+		email: "",
+		entries: 0,
+		joined: "",
+	},
+};
+
 class App extends Component {
 	constructor() {
 		super();
-		this.state = {
-			input: "",
-			imageUrl: "",
-			box: {},
-			route: "signin",
-			isSignedIn: false,
-			user: {
-				id: "",
-				name: "",
-				email: "",
-				entries: 0,
-				joined: "",
-			},
-		};
+		this.state = initialState;
 	}
 
 	loadUser = (data) => {
@@ -65,11 +67,11 @@ class App extends Component {
 
 	returnUpClarifaiRequestOptions = (imageUrl) => {
 		// Your PAT (Personal Access Token) can be found in the portal under Authentification
-		const PAT = "f30c49892b4e4d849489f7db7b7c657b";
+		const PAT = process.env.PAT;
 		// Specify the correct user_id/app_id pairings
 		// Since you're making inferences outside your app's scope
-		const USER_ID = "w0bxsoq0vcor";
-		const APP_ID = "2dd71ca815e148e2b488c30b96de634e";
+		const USER_ID = process.env.USER_ID;
+		const APP_ID = process.env.APP_ID;
 		const IMAGE_URL = imageUrl;
 		const raw = JSON.stringify({
 			user_app_id: {
@@ -116,7 +118,8 @@ class App extends Component {
 						.then((response) => response.json())
 						.then((count) => {
 							this.setState(Object.assign(this.state.user, { entries: count }));
-						});
+						})
+						.catch(console.log);
 				}
 				this.displayFaceBox(this.calculateFaceLocation(result));
 			})
@@ -125,7 +128,7 @@ class App extends Component {
 
 	onRouteChange = (route) => {
 		if (route === "signout") {
-			this.setState({ isSignedIn: false });
+			this.setState(initialState);
 		} else if (route === "home") {
 			this.setState({ isSignedIn: true });
 		}
